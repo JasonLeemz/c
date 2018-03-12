@@ -83,9 +83,6 @@
 		<Unit filename="D:/develop/study/c/main.cpp">
 			<Option target="c"/>
 		</Unit>
-		<Unit filename="D:/develop/study/c/test.cpp">
-			<Option target="c"/>
-		</Unit>
 		<Unit filename="D:/develop/study/c/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\"/>
 		</Unit>

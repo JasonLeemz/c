@@ -1,6 +1,7 @@
 #include "parse_http.h"
 #include <iostream>
 #include <string>
+#include <string.h>
 
 using namespace std;
 
@@ -20,18 +21,9 @@ char reqHeadersSource[] = "GET /question/576635507.html HTTP/1.1\n"
 struct reqHeadersSeek {
     char *rh;
     int seek;
+    int length;
 } reqHeadersSeek;
 
-typedef struct reqHeadersStruct {
-    string method;
-    string path;
-    string version;
-    string host;
-    string connection;
-    string userAgent;
-    string accept;
-    string cookie;
-} reqHeaders;
 
 typedef struct reqBaseInfo {
     string method;
@@ -43,20 +35,31 @@ reqBaseInfo getReqBaseInfo();
 
 reqHeadersStruct getDetailInfo();
 
-void parse() {
+reqHeaders parse() {
+
     reqHeadersSeek.rh = reqHeadersSource;
     reqHeadersSeek.seek = 0;
+    reqHeadersSeek.length = sizeof(reqHeadersSource);
 
     reqHeaders r;
     reqBaseInfo rb;
     rb = getReqBaseInfo();
 
-    cout << rb.method << endl;
-    cout << rb.path << endl;
-    cout << rb.version << endl;
+    r.method = rb.method;
+    r.path = rb.path;
+    r.version = rb.version;
 
-    getDetailInfo();
+    reqHeaders rh;
+    rh = getDetailInfo();
 
+    r.host = rh.host;
+    r.connection = rh.connection;
+    r.userAgent = rh.userAgent;
+    r.accept = rh.accept;
+    r.cookie = rh.cookie;
+
+
+    return r;
 }
 
 string extract(int &start, char symbol, char *str) {
@@ -87,17 +90,35 @@ reqBaseInfo getReqBaseInfo() {
 
 reqHeadersStruct getDetailInfo() {
     reqHeadersStruct rh;
+//    int l = sizeof(reqHeadersSeek.rh);
 
+    char a = 64;
+//    while (reqHeadersSeek.seek < reqHeadersSeek.length) {
     while (reqHeadersSeek.rh[reqHeadersSeek.seek-1] != '\0') {
+//        cout << reqHeadersSeek.seek << "---" << reqHeadersSeek.length << endl;
+
         string str;
         str = extract(reqHeadersSeek.seek, '\n', reqHeadersSeek.rh);
         int s = 0;
-        char * p=(char*)str.data();
+        char *p = (char *) str.data();
 
         string k = extract(s, ':', p);
         s += 1;
         string v = extract(s, '\0', p);
 
-        cout << k << " " << v << endl;
+        if(k=="Host"){
+            rh.host = v;
+        }else if(k=="Connection"){
+            rh.connection = v;
+        }else if(k=="User-Agent"){
+            rh.userAgent = v;
+        }else if(k=="Accept"){
+            rh.accept = v;
+        }else if(k=="Cookie"){
+            rh.cookie = v;
+        }
+
     }
+
+    return rh;
 }

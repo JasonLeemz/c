@@ -4,6 +4,9 @@
 using namespace std;
 
 int main() {
-    parse();
+    reqHeaders req;
+    req = parse();
+
+    cout << req.host;
     return 0;
 }
