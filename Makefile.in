@@ -94,7 +94,7 @@ CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am_main_OBJECTS = main.$(OBJEXT) parse_http.$(OBJEXT) \
-	read_file.$(OBJEXT)
+	read_file.$(OBJEXT) process.$(OBJEXT)
 main_OBJECTS = $(am_main_OBJECTS)
 main_LDADD = $(LDADD)
 AM_V_P = $(am__v_P_@AM_V@)
@@ -274,7 +274,7 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = foreign
-main_SOURCES = main.cpp parse_http.cpp parse_http.h read_file.cpp read_file.h
+main_SOURCES = main.cpp parse_http.cpp parse_http.h read_file.cpp read_file.h process.cpp process.h
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
@@ -384,6 +384,7 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/parse_http.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/process.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/read_file.Po@am__quote@
 
 .cpp.o:
