@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/ipc.h>
-
+#include <iostream>
 using namespace std;
 
 struct msgmbuf {
@@ -21,7 +21,7 @@ int main() {
     static msgmbuf buf;
 
     key = ftok(".", 1);
-
+//    cout << key;
     msg_id = msgget(key, IPC_CREAT | 0600);
 
     buf.mtype = 1;
@@ -29,7 +29,7 @@ int main() {
         fgets(buf.mtext, 50, stdin);
 
         msgsnd(msg_id, &buf, sizeof(buf), 0);
-        
+
 //        quit退出并删除队列
         if (!strncmp(buf.mtext, "quit", 4)) {
             msgctl(msg_id, IPC_RMID, 0);
