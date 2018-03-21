@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/time.h>
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <string.h>
@@ -15,8 +16,14 @@ using namespace std;
 
 #define PORT 8888
 #define BACKLOG 2
+int SocketCount = 0;
+const int SOCKET_MAX_COUNT = 50;
+int Sockets[50];
 
 void process_conn_server(int s);
+
+void AddSocket(int s);
+
 
 int main() {
 
@@ -28,6 +35,7 @@ int main() {
         cout << "socket create error" << endl;
         return -1;
     }
+    AddSocket(ss);
 
     struct sockaddr_in server_addr;
     struct sockaddr_in client_addr;
@@ -49,31 +57,57 @@ int main() {
     }
 
     //设置侦听
-    int *backlog;
-    *backlog = 2;
+    int bbb = 2;
+    int *backlog = &bbb;
+//    *backlog = 2;
     err = listen(ss, *backlog);
     if (err < 0) {
         cout << "listen error" << endl;
         return -1;
     }
 
+
+    fd_set rd;
+    struct timeval tv;
+
+    tv.tv_sec = 5;
+    tv.tv_usec = 0;
+
+
     while (1) {
-        socklen_t addrlen = sizeof(struct sockaddr);
+        cout << "while" << endl;
+        //读集 清零初始化
+        FD_ZERO(&rd);
+        FD_SET(0, &rd);
 
-        sc = accept(ss, (struct sockaddr *) &client_addr, &addrlen);
-
-        pid_t pid;
-        pid = fork();
-        if (pid == 0) {
-            close(ss);
-            process_conn_server(sc);
-        } else {
-            close(sc);
+        //把socket放入读集合中，让内核检测这些socket是否读就绪
+        for (int i = 0; i < SocketCount; i++) {
+            FD_SET(Sockets[i], &rd);
         }
+
+        //Select函数去检查读集中是否有socket读就绪
+        int total = select(0, &rd, NULL, NULL, &tv);
+//        for (int i = 0; i < SocketCount; i++) {
+//            if (Sockets[i] == ss) {
+//                socklen_t addrlen = sizeof(struct sockaddr);
+//
+//                sc = accept(ss, (struct sockaddr *) &client_addr, &addrlen);
+//                cout << "accept" << endl;
+//                pid_t pid;
+//                pid = fork();
+//                if (pid == 0) {
+//                    close(ss);
+//                    process_conn_server(sc);
+//                } else {
+//                    close(sc);
+//                }
+//            }
+//        }
 
 
     }
 
+    return 0;
 }
 
 void process_conn_server(int s) {
@@ -87,11 +121,17 @@ void process_conn_server(int s) {
             return;
         }
 
-        sprintf(buffer, "%s %d 字节数据\n",buffer, size);
+        sprintf(buffer, "%s %d 字节数据\n", buffer, size);
         write(s, buffer, strlen(buffer) + 1);
 
 //        write(s, buffer, 1024);
 //        size = read(s, buffer, 1024);
 //        write(1, buffer, size);
     }
+}
+
+void AddSocket(int s) {
+    if (SocketCount < 0 || SocketCount >= SOCKET_MAX_COUNT)
+        return;
+    Sockets[SocketCount++] = s;
 }
